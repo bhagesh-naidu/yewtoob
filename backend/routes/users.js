@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const { protect } = require('../middleware/auth');
+const { protect, authorize } = require('../middleware/auth');
 
 // ── Helper: sign JWT ──────────────────────────────────────────
 const signToken = (id) =>
@@ -65,6 +65,16 @@ router.get('/:id', async (req, res) => {
     const user = await User.findById(req.params.id).select('-password');
     if (!user) return res.status(404).json({ message: 'User not found' });
     res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// ── GET /api/users/all (ADMIN ONLY) ───────────────────────────
+router.get('/all', protect, authorize('Admin'), async (req, res) => {
+  try {
+    const users = await User.find().select('-password');
+    res.json(users);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

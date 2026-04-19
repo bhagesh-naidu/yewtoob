@@ -1,73 +1,70 @@
 /* src/pages/Home.css */
-
+/* Base padding */
 .home {
-  padding: 20px 24px 40px;
+  padding: 0 24px 40px;
 }
 
 /* Category chips */
+.home__chips-wrapper {
+  position: sticky;
+  top: var(--navbar-h);
+  background: var(--bg);
+  z-index: 10;
+  padding: 12px 0;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+}
 .home__chips {
   display: flex;
-  gap: 8px;
+  gap: 12px;
   flex-wrap: nowrap;
   overflow-x: auto;
-  padding-bottom: 16px;
-  scrollbar-width: none;
+  scrollbar-width: none; /* Firefox */
 }
 .home__chips::-webkit-scrollbar { display: none; }
 
 .home__chip {
   flex-shrink: 0;
-  padding: 6px 14px;
-  border-radius: 99px;
-  font-size: 0.82rem;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.9rem;
   font-weight: 500;
   background: var(--surface2);
-  color: var(--text-2);
+  color: var(--text);
   border: none;
   transition: background 0.15s, color 0.15s;
+  cursor: pointer;
 }
-.home__chip:hover  { background: var(--border); color: var(--text); }
+.home__chip:hover  { background: #3f3f3f; }
 .home__chip--active {
   background: var(--text);
   color: var(--bg);
 }
-[data-theme="dark"] .home__chip--active {
+.home__chip--active:hover {
   background: var(--text);
-  color: var(--bg);
+  opacity: 0.9;
 }
 
 /* Responsive grid */
 .home__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 22px 18px;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  column-gap: 16px;
+  row-gap: 40px;
 }
 
-/* Error state */
-.home__error {
-  margin: 20px 0;
-  padding: 16px 20px;
-  background: rgba(255, 43, 43, 0.08);
-  border: 1px solid rgba(255, 43, 43, 0.25);
-  border-radius: var(--radius-sm);
-  color: var(--red);
-}
-.home__error small { color: var(--text-3); font-size: 0.8rem; }
-
-/* Empty state */
-.home__empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  padding: 80px 20px;
-  color: var(--text-3);
+/* Error / empty states remain minimal */
+.home__error, .home__empty {
+  padding: 40px;
   text-align: center;
+  color: var(--text-2);
 }
-.home__empty h2 { font-size: 1.2rem; color: var(--text-2); }
-.home__empty p  { font-size: 0.88rem; }
 
-@media (max-width: 600px) {
-  .home { padding: 16px 12px 30px; }
+@media (max-width: 800px) {
+  .home__grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
+}
+@media (max-width: 500px) {
+  .home { padding: 0 12px 30px; }
   .home__grid { grid-template-columns: 1fr; gap: 20px; }
 }

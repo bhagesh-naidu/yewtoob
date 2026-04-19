@@ -1,4 +1,4 @@
-/* src/pages/Home.js — Video feed grid */
+/* src/pages/Home.jsx */
 import React, { useEffect, useState } from 'react';
 import VideoCard, { VideoCardSkeleton } from '../components/VideoCard';
 import { getVideos } from '../utils/api';
@@ -8,6 +8,7 @@ export default function Home() {
   const [videos,  setVideos]  = useState([]);
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState('');
+  const [activeChip, setActiveChip] = useState('All');
 
   useEffect(() => {
     setLoading(true);
@@ -19,19 +20,25 @@ export default function Home() {
 
   return (
     <main className="home">
-      {/* Category chips — static for now */}
-      <div className="home__chips" role="tablist" aria-label="Filter by category">
-        {CHIPS.map((c) => (
-          <button key={c} className={`home__chip${c === 'All' ? ' home__chip--active' : ''}`} role="tab">
-            {c}
-          </button>
-        ))}
+      {/* Category chips */}
+      <div className="home__chips-wrapper">
+        <div className="home__chips" role="tablist" aria-label="Filter by category">
+          {CHIPS.map((c) => (
+            <button 
+              key={c} 
+              className={`home__chip${c === activeChip ? ' home__chip--active' : ''}`} 
+              onClick={() => setActiveChip(c)}
+              role="tab"
+            >
+              {c}
+            </button>
+          ))}
+        </div>
       </div>
 
       {error && (
         <div className="home__error">
           <p>⚠️ Could not load videos: {error}</p>
-          <small>Make sure the backend is running on port 5000.</small>
         </div>
       )}
 
@@ -39,26 +46,22 @@ export default function Home() {
       <div className="home__grid">
         {loading
           ? Array.from({ length: 8 }).map((_, i) => <VideoCardSkeleton key={i} />)
-          : videos.map((v) => <VideoCard key={v._id} video={v} />)
+          : videos.filter(v => activeChip === 'All' || v.category === activeChip || v.tags?.includes(activeChip)).map((v) => <VideoCard key={v._id} video={v} />)
         }
       </div>
 
       {!loading && videos.length === 0 && !error && (
         <div className="home__empty">
-          <EmptyIcon />
-          <h2>No videos yet</h2>
-          <p>Be the first to upload something!</p>
+          <h2>No videos found</h2>
         </div>
       )}
     </main>
   );
 }
 
-const CHIPS = ['All', 'Music', 'Gaming', 'News', 'Sports', 'Tech', 'Film', 'Education', 'Autos'];
-
-const EmptyIcon = () => (
-  <svg width="64" height="64" viewBox="0 0 64 64" fill="none" opacity="0.3">
-    <rect x="8" y="12" width="48" height="40" rx="6" stroke="currentColor" strokeWidth="3"/>
-    <polygon points="26,24 42,32 26,40" fill="currentColor"/>
-  </svg>
-);
+// Chips based precisely on the provided YouTube clone image
+const CHIPS = [
+  'All', 'Operating systems', 'Music', 'Desktop computers', 'AI', 'Gaming', 
+  'Video editing software', 'Cloud computing', 'Microsoft PowerPoint', 
+  'Algorithms', 'Security hackers', 'Tablet computers', 'Monetization', 'Passive income'
+];

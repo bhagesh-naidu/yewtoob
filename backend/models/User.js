@@ -32,6 +32,11 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    role: {
+      type: String,
+      enum: ['Viewer', 'Creator', 'Admin'],
+      default: 'Viewer',
+    },
   },
   { timestamps: true }
 );

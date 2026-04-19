@@ -15,9 +15,10 @@ app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // serve uploaded files
 
 // ── Routes ────────────────────────────────────────────────────
-app.use('/api/users',    require('./routes/users'));
-app.use('/api/videos',   require('./routes/videos'));
-app.use('/api/comments', require('./routes/comments'));
+app.use('/api/users',         require('./routes/users'));
+app.use('/api/videos',        require('./routes/videos'));
+app.use('/api/comments',      require('./routes/comments'));
+app.use('/api/subscriptions', require('./routes/subscriptions'));
 
 // ── Health check ──────────────────────────────────────────────
 app.get('/api/health', (req, res) => res.json({ status: 'ok', app: 'YewToob' }));

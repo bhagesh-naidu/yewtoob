@@ -1,5 +1,5 @@
-/* src/pages/Watch.js — Video player page */
-import React, { useEffect, useState, useCallback } from 'react';
+/* src/pages/Watch.jsx */
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getVideo, likeVideo, getComments, postComment, deleteComment } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
@@ -15,11 +15,15 @@ export default function Watch() {
   const [comment,  setComment]  = useState('');
   const [liked,    setLiked]    = useState(false);
   const [likeCount,setLikeCount]= useState(0);
+  
+  // Subscription state
+  const [subscribed, setSubscribed] = useState(false);
+  const [subscriberCount, setSubscriberCount] = useState(0);
+
   const [loading,  setLoading]  = useState(true);
   const [posting,  setPosting]  = useState(false);
   const [error,    setError]    = useState('');
 
-  // Load video + comments
   useEffect(() => {
     setLoading(true);
     setLiked(false);
@@ -29,12 +33,21 @@ export default function Watch() {
         setVideo(vid);
         setLikeCount(vid.likes || 0);
         setComments(cmts);
+        setSubscriberCount(vid.uploader?.subscriberCount || 0);
+        
+        // If logged in, fetch subscription status
+        if (token && vid.uploader?._id) {
+          fetch(`http://localhost:5000/api/subscriptions/channels/${vid.uploader._id}/status`, {
+            headers: { Authorization: `Bearer ${token}` }
+          })
+          .then(res => res.json())
+          .then(data => setSubscribed(data.isSubscribed));
+        }
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, token]);
 
-  // Like handler
   const handleLike = async () => {
     if (!token) return alert('Sign in to like videos');
     if (liked) return;
@@ -47,7 +60,35 @@ export default function Watch() {
     }
   };
 
-  // Comment submit
+  const handleSubscribe = async () => {
+    if (!token) return alert('Sign in to subscribe');
+    if (!video?.uploader?._id) return;
+    
+    try {
+      if (subscribed) {
+        await fetch(`http://localhost:5000/api/subscriptions/unsubscribe/${video.uploader._id}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setSubscribed(false);
+        setSubscriberCount(prev => prev - 1);
+      } else {
+        await fetch(`http://localhost:5000/api/subscriptions/subscribe`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}` 
+          },
+          body: JSON.stringify({ channelId: video.uploader._id })
+        });
+        setSubscribed(true);
+        setSubscriberCount(prev => prev + 1);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const handleComment = async (e) => {
     e.preventDefault();
     if (!token) return alert('Sign in to comment');
@@ -65,7 +106,6 @@ export default function Watch() {
     }
   };
 
-  // Delete comment
   const handleDeleteComment = async (commentId) => {
     if (!window.confirm('Delete this comment?')) return;
     try {
@@ -76,8 +116,14 @@ export default function Watch() {
     }
   };
 
-  // Determine if this is an external URL or local file
   const isExternal = (url) => url?.startsWith('http');
+
+  const getStreamUrl = (url) => {
+    if (isExternal(url)) return url;
+    const filename = url.split('/').pop();
+    // Use the backend chunked stream route!
+    return `http://localhost:5000/api/videos/stream/${filename}`;
+  };
 
   if (loading) return <WatchSkeleton />;
   if (error)   return <div className="watch__error">⚠️ {error}</div>;
@@ -88,24 +134,15 @@ export default function Watch() {
       <div className="watch__main">
         {/* ── Video player ───────────────────────────────────── */}
         <div className="watch__player-wrap">
-          {isExternal(video.videoUrl) ? (
-            <video
-              className="watch__player"
-              src={video.videoUrl}
-              controls
-              autoPlay
-              controlsList="nodownload"
-            >
-              Your browser does not support the video tag.
-            </video>
-          ) : (
-            <video
-              className="watch__player"
-              src={`http://localhost:5000${video.videoUrl}`}
-              controls
-              autoPlay
-            />
-          )}
+          <video
+            className="watch__player"
+            src={getStreamUrl(video.videoUrl)}
+            controls
+            autoPlay
+            controlsList={isExternal(video.videoUrl) ? "nodownload" : ""}
+          >
+            Your browser does not support the video tag.
+          </video>
         </div>
 
         {/* ── Title & meta ───────────────────────────────────── */}
@@ -117,40 +154,47 @@ export default function Watch() {
               <div className="watch__channel-avatar">
                 {(video.uploaderName || 'U').charAt(0).toUpperCase()}
               </div>
-              <div>
+              <div style={{ marginRight: '24px' }}>
                 <strong className="watch__channel-name">
                   {video.uploaderName || video.uploader?.username || 'Unknown'}
                 </strong>
-                <span className="watch__views">{formatViews(video.views)} · {timeAgo(video.createdAt)}</span>
+                <span className="watch__views">{formatViews(subscriberCount)} subscribers</span>
               </div>
+              
+              {user?._id !== video?.uploader?._id && (
+                <button 
+                  className={`watch__subscribe-btn ${subscribed ? 'watch__subscribe-btn--active' : ''}`}
+                  onClick={handleSubscribe}
+                >
+                  {subscribed ? 'Subscribed' : 'Subscribe'}
+                </button>
+              )}
             </div>
 
-            {/* Like button */}
-            <button
-              className={`watch__like-btn${liked ? ' watch__like-btn--liked' : ''}`}
-              onClick={handleLike}
-              aria-label="Like video"
-            >
-              <LikeIcon filled={liked} />
-              <span>{likeCount}</span>
-            </button>
+            {/* Actions */}
+            <div className="watch__actions">
+              <button
+                className={`watch__action-btn watch__action-btn--like${liked ? ' active' : ''}`}
+                onClick={handleLike}
+              >
+                <LikeIcon filled={liked} />
+                <span>{likeCount}</span>
+              </button>
+            </div>
           </div>
 
           {/* Description */}
-          {video.description && (
-            <div className="watch__desc">
-              <p>{video.description}</p>
-            </div>
-          )}
-
-          {/* Tags */}
-          {video.tags?.length > 0 && (
-            <div className="watch__tags">
-              {video.tags.map((tag) => (
-                <span key={tag} className="watch__tag">#{tag}</span>
-              ))}
-            </div>
-          )}
+          <div className="watch__desc">
+            <strong>{formatViews(video.views)} views • {timeAgo(video.createdAt)}</strong>
+            <p style={{ marginTop: '8px' }}>{video.description}</p>
+            {video.tags?.length > 0 && (
+              <div className="watch__tags" style={{ marginTop: '12px' }}>
+                {video.tags.map((tag) => (
+                  <span key={tag} style={{ color: 'var(--blue)', fontSize: '0.85rem', marginRight: '8px' }}>#{tag}</span>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* ── Comments ───────────────────────────────────────── */}
@@ -159,18 +203,16 @@ export default function Watch() {
             {comments.length} Comment{comments.length !== 1 ? 's' : ''}
           </h2>
 
-          {/* Comment form */}
           <form className="watch__comment-form" onSubmit={handleComment}>
             <div className="watch__comment-avatar">
               {user ? user.username.charAt(0).toUpperCase() : '?'}
             </div>
             <div className="watch__comment-input-wrap">
-              <textarea
+              <input
                 className="watch__comment-input"
                 placeholder={user ? 'Add a comment…' : 'Sign in to comment'}
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
-                rows={2}
                 disabled={!user}
               />
               {comment.trim() && (
@@ -186,7 +228,6 @@ export default function Watch() {
             </div>
           </form>
 
-          {/* Comment list */}
           <div className="watch__comment-list">
             {comments.map((c) => (
               <div key={c._id} className="watch__comment">
@@ -195,19 +236,17 @@ export default function Watch() {
                 </div>
                 <div className="watch__comment-body">
                   <div className="watch__comment-meta">
-                    <strong>{c.authorName || c.author?.username}</strong>
+                    <strong>@{c.authorName || c.author?.username}</strong>
                     <span>{timeAgo(c.createdAt)}</span>
                   </div>
                   <p className="watch__comment-text">{c.text}</p>
                 </div>
-                {/* Delete — only for comment author */}
                 {user && (user._id === (c.author?._id || c.author)) && (
                   <button
                     className="watch__comment-delete"
                     onClick={() => handleDeleteComment(c._id)}
-                    aria-label="Delete comment"
                   >
-                    <TrashIcon />
+                    Delete
                   </button>
                 )}
               </div>
@@ -219,7 +258,6 @@ export default function Watch() {
   );
 }
 
-/* ── Skeleton ────────────────────────────────────────────────── */
 function WatchSkeleton() {
   return (
     <div className="watch">
@@ -232,17 +270,9 @@ function WatchSkeleton() {
   );
 }
 
-/* ── Icons ───────────────────────────────────────────────────── */
 const LikeIcon = ({ filled }) => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/>
     <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
-  </svg>
-);
-const TrashIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>
-    <path d="M10 11v6"/><path d="M14 11v6"/>
-    <path d="M9 6V4h6v2"/>
   </svg>
 );
