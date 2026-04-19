@@ -1,0 +1,14 @@
+/* src/pages/Placeholder.css */
+.placeholder-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  text-align: center;
+  color: var(--text-3);
+  gap: 10px;
+}
+.placeholder-page h1 { font-size: 1.5rem; color: var(--text); font-weight: 700; }
+.placeholder-page__sub  { font-size: 0.9rem; color: var(--text-2); }
+.placeholder-page__note { font-size: 0.82rem; max-width: 320px; }
