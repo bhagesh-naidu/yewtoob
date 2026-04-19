@@ -35,7 +35,7 @@ export default function Navbar() {
             <path d="M117.8 13.2c-1.4-5.2-5.5-9.3-10.7-10.7C97.1 0 60 0 60 0S22.9 0 13.4 2.5C8.2 3.9 4.1 8 2.7 13.2 0 22.8 0 40 0 40s0 17.2 2.7 26.8c1.4 5.2 5.5 9.3 10.7 10.7C22.9 80 60 80 60 80s37.1 0 46.6-2.5c5.2-1.4 9.3-5.5 10.7-10.7C120 57.2 120 40 120 40s0-17.2-2.2-26.8z" fill="#FF0000"/>
             <path d="M48 57.2l31.6-17.2L48 22.8v34.4z" fill="#FFF"/>
           </svg>
-          <span className="navbar__logo-text">YouTube</span>
+          <span className="navbar__logo-text">YewToob</span>
           <span className="navbar__country-code">IN</span>
         </Link>
       </div>

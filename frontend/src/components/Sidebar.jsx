@@ -89,7 +89,7 @@ const PlaylistIcon = () => <svg viewBox="0 0 24 24" fill="currentColor"><path d=
 const WatchLaterIcon = () => <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.97 16.95L10 13.87V7h2v5.76l4.03 2.49-1.06 1.7zM12 3c-4.96 0-9 4.04-9 9s4.04 9 9 9 9-4.04 9-9-4.04-9-9-9m0-1c5.52 0 10 4.48 10 10s-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2z"/></svg>;
 const LikeIcon = () => <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.77 11h-4.23l1.52-4.94C16.38 5.03 15.54 4 14.38 4c-.58 0-1.14.24-1.52.65L7 11H3v10h4h1h9.43c1.06 0 1.98-.67 2.19-1.61l1.34-6C21.23 12.15 20.18 11 18.77 11zM7 20H4v-8h3v8zm12.96-5.87l-1.34 6C18.41 20.65 17.89 21 17.43 21H8v-8.61l5.6-6.06C13.84 6.06 14.11 6 14.38 6c.08 0 .15.03.2.08.04.05.09.15.02.39L13.13 11h5.64c.48 0 .8.2.93.39.11.16.14.38.06.74z"/></svg>;
 const DownloadIcon = () => <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 18v1H6v-1h11zm-.5-6.6l-.7-.7-3.8 3.7V4h-1v10.4l-3.8-3.8-.7.7 5 5 5-4.9z"/></svg>;
-const ChevronRightIcon = () => <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.4 18.4l-1.4-1.4 5.6-5.6-5.6-5.6 1.4-1.4 7 7-7 7z"/></svg>;
+const ChevronRightIcon = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M9.4 18.4l-1.4-1.4 5.6-5.6-5.6-5.6 1.4-1.4 7 7-7 7z"/></svg>;
 const UserOutlineIcon = () => <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2A10 10 0 1 0 22 12A10 10 0 0 0 12 2Zm0 18a8 8 0 0 1-5.55-2.25c.08-1.54 2.82-2.35 5.55-2.35 2.73 0 5.48.81 5.56 2.36A8 8 0 0 1 12 20Zm6.36-3.32C17.06 14.92 14.18 14 12 14c-2.19 0-5.07.92-6.36 2.68A8 8 0 1 1 18.36 16.68ZM12 6a3 3 0 1 0 3 3A3 3 0 0 0 12 6Zm0 5a2 2 0 1 1 2-2A2 2 0 0 1 12 11Z"/></svg>;
 
 // Explore Icons
